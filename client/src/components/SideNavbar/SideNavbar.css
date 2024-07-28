@@ -1,0 +1,74 @@
+#SideNavbar {
+  width: 300px;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  /* background-color: #eceef0; */
+  #add-button{
+    position: relative;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-bottom: 14px;
+    button{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      outline: none;
+      font-size: 28px;
+      font-weight: bolder;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.171);
+      transition: .2s;
+      p{
+        font-size: 18px;
+        margin: 0;
+      }
+      &:hover{
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.349);
+      }
+    }
+  }
+  .navbarLink {
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    padding: 1px;
+    a {
+      color: #000000d3;
+      margin-left: 20px;
+      display: flex;
+      gap: 10px;
+      padding: 4px 10px;
+      align-items: center;
+      flex: 1;
+      svg {
+        font-size: 22px;
+      }
+      p {
+        margin: 5px;
+        white-space: nowrap;
+      }
+    }
+    &:hover:not(.activeLink) {
+      background-color: rgba(0, 0, 0, 0.048);
+    }
+  }
+  #dropDown {
+    position: absolute;
+    font-size: 18px;
+    color: #000000d3;
+  }
+  .navbarLink2 {
+    margin-left: 40px;
+  }
+  .activeLink {
+    background-color: #4071f4;
+    a,
+    svg {
+      color: white !important;
+    }
+  }
+}

@@ -1,0 +1,67 @@
+header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  z-index: 9;
+  #user {
+    width: 40px;
+    aspect-ratio: 1;
+    position: relative;
+    img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 50%;
+      background-color: aqua;
+      cursor: pointer;
+    }
+    #userDetails {
+      background-color: #e9eef6;
+      padding: 10px 40px;
+      width: 250px;
+      position: absolute;
+      right: 0;
+      border-radius: 10px;
+      p,
+      h3 {
+        text-align: center;
+      }
+      #profileImage {
+        width: 60%;
+        margin: auto;
+        position: relative;
+        label {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 30px;
+          aspect-ratio: 1;
+          position: absolute;
+          bottom: 16px;
+          right: 4px;
+          background-color: white;
+          color: blue;
+          font-size: 22px;
+          border-radius: 50%;
+          border: none;
+          outline: none;
+        }
+        input[type="file"] {
+          display: none;
+        }
+      }
+      button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        padding: 0;
+        margin-bottom: 20px;
+      }
+    }
+  }
+}

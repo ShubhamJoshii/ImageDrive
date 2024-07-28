@@ -1,0 +1,19 @@
+#searchBar{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    color: black;
+    background-color: #e9eef6;
+    padding: 5px 10px;
+    gap: 10px;
+    width: 600px;
+    #search{
+        padding: 4px;
+        background: none;
+        width: 500px;
+        font-size: 18px;
+        outline: none;
+        border: none;
+    }
+}

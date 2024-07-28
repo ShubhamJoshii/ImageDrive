@@ -1,0 +1,95 @@
+.RightClickMenu {
+  position: absolute;
+  background-color: white;
+  width: 260px;
+  padding: 10px 0;
+  padding-bottom: 20px;
+  left: 0;
+  top: 20px;
+  border-radius: 4px;
+  box-shadow: 0 0 10px #0000002c;
+  z-index: 9999;
+  
+  div{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 6px 14px;
+    /* margin-bottom: 10px; */
+    &:hover {
+      background-color: #0000002c;
+    }
+    svg {
+      font-size: 24px;
+    }
+    p {
+      font-size: 12px !important;
+      margin: 0;
+    }
+  }
+}
+input[type="file"]{
+  display: none;
+}
+
+#New-Folder{
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100vw;
+  background-color: #adadad5d;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  form{
+    background-color: white;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 40px 30px;
+    border-radius: 10px;
+    h1{
+      margin: 10px 0 6px 0; 
+      font-size: 24px;
+    }
+    #FolderName{
+      width: calc(100% - 24px);
+      font-size: 18px;
+      padding: 8px 12px;
+      color: rgba(0, 0, 0, 0.507);
+      outline: none;
+    }
+    div{
+      display: flex;
+      justify-content: end;
+      gap: 10px;
+      margin-top: 10px;
+      input[type="button"],input[type="submit"]{
+        color: #0b57d0;
+        font-size: 18px;
+        font-weight: 500;
+        outline: none;
+        border: none;
+        background: none;
+        padding: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: .2s;
+        border:2px solid white;
+
+        &:hover{
+          /* background-color: #0062ff5e; */
+          border:2px solid #0b57d04d;
+        }
+      }
+    }
+  }
+}
+
+.menu-trigger {
+  width: 100%;
+}
