@@ -330,11 +330,60 @@ router.get(`/fetchStorage`, Authenication, async (req, res) => {
 
   res.send({ folderData });
 });
+
+router.get(`/searchImage`, Authenication, async (req, res) => {
+  const search = req.query.search.toLowerCase();
+  // console.log(search.length)
+  if (search.length > 0) {
+    const searchData = await StorageModel.aggregate([
+      {
+        $match: {
+          UserID: req.userID.toString(),
+        },
+      },
+      {
+        $project: {
+          Files: 1,
+          _id: 0,
+        },
+      },
+      {
+        $unwind: {
+          path: "$Files",
+        },
+      },
+      {
+        $unwind: {
+          path: "$Files.ImageURls",
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: "$Files",
+        },
+      },
+      {
+        $project: {
+          ImageName: "$ImageURls.ImageName",
+          path: "$path",
+          URL: "$ImageURls.URL",
+        },
+      },
+    ]);
+    const searchOutput = searchData.filter((curr) =>
+      curr.ImageName.toLowerCase().includes(search)
+    );
+    // console.log(searchOutput)
+    return res.send({ searchOutput });
+  }
+  return res.send({ searchOutput: [] });
+});
+
 router.get(`/recentPhotos`, Authenication, async (req, res) => {
   const data = await StorageModel.aggregate([
     {
       $match: {
-        UserID: "66a6387f2fbe54e1ff559610",
+        UserID: req.userID.toString(),
       },
     },
     {
@@ -374,6 +423,94 @@ router.get(`/recentPhotos`, Authenication, async (req, res) => {
   res.send({ folderData: data });
 });
 
+router.delete("/folder", Authenication, async (req, res) => {
+  const id = req.query.id;
+  const path = req.query.path;
+  const fetchURLs = await StorageModel.aggregate([
+    {
+      $match: {
+        UserID: req.userID.toString(),
+      },
+    },
+    { $unwind: "$Files" },
+    {
+      $match: {
+        "Files.path": {
+          $regex: `^${path}`,
+        },
+      },
+    },
+    {
+      $unwind: "$Files.ImageURls",
+    },
+    {
+      $project: {
+        URL: "$Files.ImageURls.URL",
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        URLs: {
+          $push: "$URL",
+        },
+      },
+    },
+  ]);
+
+  const fetchStorage = await StorageModel.findOne({UserID:req.userID});
+  let temp = fetchStorage.Files.filter(curr => !curr.path.startsWith(path))
+  console.log(temp)
+
+  const deleteFolder = await StorageModel.updateOne(
+    { UserID: req.userID },
+    {
+      $set: { Files: temp },
+    }
+  );
+  if (deleteFolder.modifiedCount > 0) {
+    await fetchURLs[0]?.URLs.map(async (curr) => {
+      let imageID =
+        "storage" + curr.split("storage")[1].replace(/\.[^/.]+$/, "");
+      await cloudinary.uploader.destroy(imageID);
+    });
+    return res.json({ message: "Folder Deleted Successfull", result: true });
+  } else {
+    return res.json({ message: "Folder Deleted UnSuccessfull", result: false });
+  }
+});
+
+router.delete("/image", Authenication, async (req, res) => {
+  const id = req.query.id;
+  const imageID = req.query.imageID;
+  const existStorage = await StorageModel.findOne({ UserID: req.userID });
+
+  const Files = existStorage.Files.map((curr) => {
+    let temp = curr.ImageURls.filter((e) => e._id.toString() !== id);
+    return {
+      FolderName: curr.FolderName,
+      lastUpdate: curr.lastUpdate,
+      path: curr.path,
+      _id: curr._id,
+      ImageURls: temp,
+    };
+  });
+  const updateStorage = await StorageModel.updateOne(
+    { UserID: req.userID },
+    { $set: { Files } }
+  );
+  if (updateStorage.modifiedCount > 0) {
+    const result = await cloudinary.uploader.destroy(imageID);
+    return res.json({
+      message: "Image Deleted Successfull",
+      existStorage,
+      result: true,
+    });
+  } else {
+    return res.json({ message: "Image Deleted UnSuccessfull", result: false });
+  }
+});
+
 // for logout User
 router.get("/logout", Authenication, async (req, res) => {
   res.clearCookie("JoshiStorageToken", { path: "/" });
@@ -381,3 +518,138 @@ router.get("/logout", Authenication, async (req, res) => {
 });
 
 module.exports = router;
+
+// {
+//   "_id": {
+//     "$oid": "66a638802fbe54e1ff559612"
+//   },
+//   "UserID": "66a6387f2fbe54e1ff559610",
+//   "Files": [
+//     {
+//       "path": "/",
+//       "FolderName": "/",
+//       "ImageURls": [],
+//       "lastUpdate": "2024-08-07T10:56:57.060+00:00",
+//       "_id": {
+//         "$oid": "66b352fb0729ced494dded32"
+//       }
+//     },
+//     {
+//       "path": "/Untitledfolder/Under",
+//       "FolderName": "Under",
+//       "ImageURls": [],
+//       "lastUpdate": "2024-07-28T15:05:46.764+00:00",
+//       "_id": {
+//         "$oid": "66a65e4ad076bec0aefe917d"
+//       }
+//     },
+//     {
+//       "path": "/Untitledfolder/HelloWorld",
+//       "FolderName": "HelloWorld",
+//       "ImageURls": [],
+//       "lastUpdate": "2024-07-28T18:06:45.684+00:00",
+//       "_id": {
+//         "$oid": "66a688b5ddb153bac8551af7"
+//       }
+//     },
+//     {
+//       "path": "/Untitledfolder/Under/Images",
+//       "FolderName": "Images",
+//       "ImageURls": [],
+//       "lastUpdate": "2024-07-28T18:07:05.077+00:00",
+//       "_id": {
+//         "$oid": "66a688c9ddb153bac8551b32"
+//       }
+//     },
+//     {
+//       "path": "/Shubham/Untitledfolder",
+//       "FolderName": "Untitled folder",
+//       "ImageURls": [],
+//       "lastUpdate": "2024-08-05T07:07:04.556+00:00",
+//       "_id": {
+//         "$oid": "66b07a1856b5045fa93e216f"
+//       }
+//     },
+//     {
+//       "path": "/Shubham/Untitledfolder2",
+//       "FolderName": "Untitled folder2",
+//       "ImageURls": [],
+//       "lastUpdate": "2024-08-05T07:36:08.854+00:00",
+//       "_id": {
+//         "$oid": "66b080e856b5045fa93e2214"
+//       }
+//     },
+//     {
+//       "path": "/Shubham/Untitledfolder2/Shuhbam",
+//       "FolderName": "Shuhbam",
+//       "ImageURls": [],
+//       "lastUpdate": "2024-08-05T07:41:41.443+00:00",
+//       "_id": {
+//         "$oid": "66b0823556b5045fa93e25aa"
+//       }
+//     },
+//     {
+//       "path": "/Shubham/Untitledfolder2/Untitledfolder",
+//       "FolderName": "/Shubham/Untitledfolder2/Untitledfolder",
+//       "ImageURls": [
+//         {
+//           "createdAt": "2024-08-05T07:48:36.848+00:00",
+//           "URL": "https://res.cloudinary.com/dhwyjphl6/image/upload/v1722844121/storage/66a6387f2fbe54e1ff559610/kwk5rvmgl9xetu3dpona.jpg",
+//           "ImageName": "linkedin-post_pradeep-sir.jpg",
+//           "_id": {
+//             "$oid": "66b083da56b5045fa93e2be8"
+//           }
+//         },
+//         {
+//           "createdAt": "2024-08-05T07:48:57.653+00:00",
+//           "URL": "https://res.cloudinary.com/dhwyjphl6/image/upload/v1722844139/storage/66a6387f2fbe54e1ff559610/zpcu5y2cgouty5z7q9u3.jpg",
+//           "ImageName": "linkedin-post_pradeep-sir_NEW-FONT.jpg",
+//           "_id": {
+//             "$oid": "66b083eb56b5045fa93e2ccb"
+//           }
+//         }
+//       ],
+//       "lastUpdate": "2024-08-05T07:48:57.653+00:00",
+//       "_id": {
+//         "$oid": "66b083eb56b5045fa93e2cc9"
+//       }
+//     },
+//     {
+//       "path": "/Shubham/Untitledfolder2/Untitledfolderfdas",
+//       "FolderName": "Untitled folderfdas",
+//       "ImageURls": [],
+//       "lastUpdate": "2024-08-05T07:42:24.278+00:00",
+//       "_id": {
+//         "$oid": "66b0826056b5045fa93e280d"
+//       }
+//     },
+//     {
+//       "path": "/Untitledfolder",
+//       "FolderName": "Untitled folder",
+//       "lastUpdate": "2024-08-07T11:15:33.492+00:00",
+//       "_id": {
+//         "$oid": "66b3575554adc9b1d69f1813"
+//       },
+//       "ImageURls": []
+//     },
+//     {
+//       "path": "/Untitledfolder/Shubham",
+//       "FolderName": "Shubham",
+//       "lastUpdate": "2024-08-07T11:21:53.243+00:00",
+//       "_id": {
+//         "$oid": "66b358d17806884be244ecf2"
+//       },
+//       "ImageURls": []
+//     },
+//     {
+//       "path": "/Shubham",
+//       "FolderName": "Shubham",
+//       "lastUpdate": "2024-08-07T11:22:05.623+00:00",
+//       "_id": {
+//         "$oid": "66b358dd7806884be244ed48"
+//       },
+//       "ImageURls": []
+//     }
+//   ],
+//   "__v": 27
+// }

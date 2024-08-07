@@ -47,7 +47,7 @@ const Grid = ({folderData}) => {
                 />
                 <div id="details">
                   <img src={userData.Profile} />
-                  <p>You created • {createdAt}</p>
+                  <p><span id="displayNone">You created • </span>{createdAt}</p>
                 </div>
               </div>
             )}

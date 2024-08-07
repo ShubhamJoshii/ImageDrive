@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  /* display: none; */
   /* background-color: #eceef0; */
   #add-button{
     position: relative;
@@ -70,5 +71,46 @@
     svg {
       color: white !important;
     }
+  }
+  @media only screen and (max-width: 1340px) {
+    position: absolute;
+    width: 300px;
+    height: calc(100vh - 40px);
+    /* display: none; */
+    z-index: 999;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 20px;
+    background-color: inherit;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.24);
+    h2{
+      margin-top: 60px;
+    }
+  }
+
+}
+
+#menuBtn{
+  position: absolute;
+  display: none;
+  top: 20px;
+  left: 20px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: #0a4ef5;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.445);
+  cursor: pointer;
+  svg{
+    font-size: 28px;
+
+  }
+  @media only screen and (max-width: 1340px) {
+    display: flex;
   }
 }

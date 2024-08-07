@@ -8,13 +8,15 @@ import List from "../../components/fileStructure/list";
 
 import axios from "axios";
 import { UserDetails } from "../../App";
-import { useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { Oval } from "react-loader-spinner";
 const Recent = () => {
   const [fileStructure, setFileStructure] = useState(() => {
     const temp = localStorage.getItem("fileStructure") || "grid";
     return temp;
   });
   const [folderData, setFolderData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const location = useLocation();
   const { checkUserAlreadyLogin, userData } = useContext(UserDetails);
@@ -25,25 +27,26 @@ const Recent = () => {
       : setFileStructure("grid");
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchFiles();
-  },[userData, location])
+  }, [userData, location]);
 
   const fetchFiles = async () => {
     if (userData?._id) {
+      setLoading(true);
       await axios
         .get(`/api/recentPhotos`)
         .then((response) => {
-          setFolderData(response.data.folderData)
+          setFolderData(response.data.folderData);
         })
-        .catch((err) => {});
+        .catch((err) => {})
+        .finally(() => setLoading(false));
     }
   };
 
   useEffect(() => {
     localStorage.setItem("fileStructure", fileStructure);
   }, [fileStructure]);
-
 
   return (
     <div id="content-inner">
@@ -62,28 +65,54 @@ const Recent = () => {
           <MdGridView />
         </div>
       </div>
-      <div className={fileStructure}>
-        {
-          folderData?.length > 0 ? 
-            <>
-            {fileStructure === "grid" ? (
-              <>
-                <Grid folderData={folderData}/>
-              </>
-            ) : (
-              <>
-                <List folderData={folderData}/>
-              </>
-            )}
-            </>
-            :
-            <div id="NoFileFound">
-              <h1>No File Found</h1>
-              <p>Create New Folder or Upload File</p>
-              <p>By Using 'New' button or right click</p>
+      {userData ? (
+        <>
+          {loading ? (
+            <div>
+              <Oval
+                height="40"
+                width="40"
+                color="black"
+                wrapperStyle={{ justifyContent: "center" }}
+                wrapperClass=""
+                visible={true}
+                ariaLabel="oval-loading"
+                secondaryColor="black"
+                strokeWidth={4}
+                strokeWidthSecondary={4}
+              />
             </div>
-        }
-      </div>
+          ) : (
+            <>
+              {folderData?.length > 0 ? (
+                <div className={fileStructure}>
+                  {fileStructure === "grid" ? (
+                    <>
+                      <Grid folderData={folderData} />
+                    </>
+                  ) : (
+                    <>
+                      <List folderData={folderData} />
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div id="NoFileFound">
+                  <h1>No File Found</h1>
+                  <p>Create New Folder or Upload File</p>
+                  <p>By Using 'New' button or right click</p>
+                </div>
+              )}
+            </>
+          )}
+        </>
+      ) : (
+        <p style={{ fontSize: "14px", textAlign: "center" }}>
+          Sorry,the <b>Image Storage</b> is restricted to registered users only.
+          Please <NavLink to={"/register"}>register</NavLink> or{" "}
+          <NavLink to={"/login"}>login</NavLink> to continue.
+        </p>
+      )}
     </div>
   );
 };

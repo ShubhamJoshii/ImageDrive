@@ -5,6 +5,8 @@
     height: 100vh;
     width: 100%;
     object-fit: contain;
+    padding: 0 !important;
+    font-size: 26px !important;
     z-index: 9;
     background-color: #000000d4;
     

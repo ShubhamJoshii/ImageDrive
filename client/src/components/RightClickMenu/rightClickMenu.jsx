@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   ContextMenuTrigger,
   ContextMenu,
@@ -10,6 +10,7 @@ import { LuFileUp } from "react-icons/lu";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import convertBase64 from "../convertBase64";
+import { FolderDetails, UserDetails } from "../../App";
 
 const RightClickMenu = ({ showRightClickMenu, setRightClickMenu }) => {
   const [popUp, setpopUp] = useState(null);
@@ -17,6 +18,9 @@ const RightClickMenu = ({ showRightClickMenu, setRightClickMenu }) => {
   const ref = useRef(null);
   const ref2 = useRef(null);
   const location = useLocation();
+  const { checkUserAlreadyLogin, notification } = useContext(UserDetails);
+  const { fetchFiles } = useContext(FolderDetails);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -56,7 +60,9 @@ const RightClickMenu = ({ showRightClickMenu, setRightClickMenu }) => {
         folderName,
       })
       .then((response) => {
-        console.log(response.data);
+        notification(response.data.message, "Success");
+        setpopUp(null)
+        fetchFiles();
       })
       .catch((err) => {
         console.log(err);
@@ -68,15 +74,20 @@ const RightClickMenu = ({ showRightClickMenu, setRightClickMenu }) => {
     const base64 = await convertBase64(e.target.files[0]);
     const name = e.target.files[0].name;
     console.log(name);
-    await axios.post("/api/uploadImage",{
-      path:location.pathname,
-      image: base64,
-      ImageName: name
-    }).then((response) => {
-      console.log(response.data)
-    }).catch((err) => {
-      console.log(err)
-    });
+    await axios
+      .post("/api/uploadImage", {
+        path: location.pathname,
+        image: base64,
+        ImageName: name,
+      })
+      .then((response) => {
+        console.log(response.data);
+        notification(response.data.message, "Success");
+        fetchFiles();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (

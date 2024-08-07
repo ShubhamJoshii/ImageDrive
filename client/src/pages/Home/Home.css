@@ -1,56 +1,70 @@
 #content-inner {
   background-color: white;
-  #structure{
+  #LinkAndStructure {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 20px;
+    margin-bottom: 20px;
+  }
+  #structure {
     display: flex;
     justify-content: end;
     align-items: center;
     font-size: 22px;
-    margin-bottom: 20px;
-    div{
+    div {
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 2px 10px;
       cursor: pointer;
       border: 1px solid hsla(0, 0%, 0%, 0.603);
-      &:hover{
+      &:hover {
         background-color: #dfe3e7;
       }
-      &:first-child{
+      &:first-child {
         border-start-start-radius: 10px;
         border-end-start-radius: 10px;
       }
-      &:last-child{
+      &:last-child {
         border-start-end-radius: 10px;
         border-end-end-radius: 10px;
       }
 
-      svg{
+      svg {
         padding: 5px;
         display: flex;
       }
     }
-    .active{
+    .active {
       background-color: #dfe3e7;
     }
-    .active::before{
+    .active::before {
       content: "✓";
     }
   }
-  #NoFileFound{
+  #NoFileFound {
     display: flex;
     flex-direction: column;
     align-items: center;
-    h1,p{
+    h1,
+    p {
       margin: 0;
     }
-    h1{
-      margin:80px 0 20px 0;
+    h1 {
+      margin: 80px 0 20px 0;
     }
-    p{
-
+  }
+  @media only screen and (max-width: 1340px) {
+    #structure {
+      div {
+        svg {
+          font-size: 16px;
+        }
+      }
     }
-
+    .active::before{
+      font-size: 18px;
+    }
   }
 }
-

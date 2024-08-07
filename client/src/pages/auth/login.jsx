@@ -13,49 +13,9 @@ const Login = () => {
   });
   const [loadingShow, setloadingShow] = useState(false);
 
-  const {checkUserAlreadyLogin } = useContext(UserDetails);
+  const {checkUserAlreadyLogin, notification } = useContext(UserDetails);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   checkUserAlreadyLogin();
-  // }, []);
-
-  const notification = (notiText, type) => {
-    if (type === "Success") {
-      toast.success(notiText, {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-    } else if (type === "Un-Success") {
-      toast.error(notiText, {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-    } else {
-      toast.warn(notiText, {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-    }
-  };
 
   const submit = async (e) => {
     e.preventDefault();

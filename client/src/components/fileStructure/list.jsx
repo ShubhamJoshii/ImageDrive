@@ -5,18 +5,46 @@ import { FaRegImage } from "react-icons/fa";
 import { FiDownload } from "react-icons/fi";
 import { MdOutlineZoomOutMap } from "react-icons/md";
 import { saveAs } from "file-saver";
+import { MdOutlineDelete } from "react-icons/md";
 
 import ShowFullScreenImage from "../ShowFullScreenImage/showFullScreenImage";
-import { UserDetails } from "../../App";
+import { FolderDetails, UserDetails } from "../../App";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const List = ({ folderData }) => {
   const [showImage, setShowImage] = useState("");
   const { checkUserAlreadyLogin, userData } = useContext(UserDetails);
+  const { loading, fetchFiles } = useContext(FolderDetails);
   const navigate = useNavigate();
   const [folder, setFolder] = useState(true);
   const downloadImage = (imglink, imageName) => {
     saveAs(imglink, imageName);
+  };
+
+  const deleteFolderImage = async (event, _id, type, imageURL="") => {
+    event.stopPropagation();
+    console.log(_id);
+    if (type === "folder") {
+      await axios
+        .delete(`/api/folder?id=${_id}&path=${imageURL}`)
+        .then((response) => {
+          fetchFiles();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      const imageID = "storage" + imageURL.split("storage")[1].replace(/\.[^/.]+$/, "")
+      await axios
+        .delete(`/api/image?id=${_id}&imageID=${imageID}`)
+        .then((response) => {
+          fetchFiles();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
 
   return (
@@ -30,7 +58,7 @@ const List = ({ folderData }) => {
           </tr>
         </thead>
 
-        {folderData.map((curr) => {
+        {folderData.map((curr, id) => {
           let createdAt = "";
           if (curr.type === "folder") {
             createdAt = curr?.lastUpdate;
@@ -45,7 +73,7 @@ const List = ({ folderData }) => {
             // console.log(createdAt,curr.lastUpdate)
           }
           return (
-            <>
+            <React.Fragment key={id}>
               {curr.type === "folder" ? (
                 <tbody onClick={() => navigate(curr.path)}>
                   <tr>
@@ -58,10 +86,19 @@ const List = ({ folderData }) => {
                     <td>
                       <p>MyStorage{curr.path}</p>
                     </td>
-                    <td colSpan={2}>
+                    <td>
                       <div id="details">
                         <img src={userData.Profile} alt="ProfileDP" />
                         <p>Last Modified • {createdAt}</p>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <MdOutlineDelete
+                          onClick={(event) =>
+                            deleteFolderImage(event, curr._id, "folder", curr.path)
+                          }
+                        />
                       </div>
                     </td>
                   </tr>
@@ -104,9 +141,20 @@ const List = ({ folderData }) => {
                       <div>
                         <FiDownload
                           onClick={() =>
-                            downloadImage(curr.ImageURls.URL, "shubham.jpg")
+                            downloadImage(curr.ImageURls.URL, curr.ImageURls.ImageName)
                           }
                         />
+                        <MdOutlineDelete
+                          onClick={(event) =>
+                            deleteFolderImage(
+                              event,
+                              curr.ImageURls._id,
+                              "image",
+                              curr.ImageURls.URL
+                            )
+                          }
+                        />
+
                         <MdOutlineZoomOutMap
                           onClick={() =>
                             setShowImage({
@@ -120,7 +168,7 @@ const List = ({ folderData }) => {
                   </tr>
                 </tbody>
               )}
-            </>
+            </React.Fragment>
           );
         })}
       </table>
